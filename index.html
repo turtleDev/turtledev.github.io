@@ -1,59 +1,59 @@
 <!DOCTYPE HTML>
 <html>
- 	<head>
- 		<title>Awesomeness, coming soon to a computer near you</title>
- 	</head>
- 	<style type='text/css'>
- 	body {
- 		margin: 0px;
- 	}
- 	.background {
- 		background: rgb(230,230,230);
- 		margin:0px;
- 	}
- 	.container {
- 		height:100vh;
- 		width: 100vw;
- 		margin: 0px
- 	}
- 	p {
- 		margin:0px;
- 	}
- 	#main {
- 		color: rgb(100,200,100);
- 		font-size: 38px;
- 		text-align: center;
- 		position: relative;
- 		top: 63%;
- 	}
- 	#sub {
- 		font-size: 24px;
- 		text-align: center;
- 		position: relative;
- 		top:65%;
- 	}
- 	#logo {
- 		position: absolute;
- 		top: 21%;
- 		left: 50%;
- 		margin-left: -125px;
- 	}
- 	</style>
- 	<body>
- 		<div class='background'>
- 			<div class='container'>
- 				<img src='logo.png' id='logo'>
- 				<p id='main'>turtleDev</p>
- 				<p id='sub'>Awesomeness, coming soon to a computer near you.</p>
- 			</div>
- 		</div>
- 	<script type='text/javascript'>
- 		var deg = 0;
- 		window.setInterval(function() {
- 			element = document.getElementById('logo');
- 			element.style.webkitTransform = 'rotate('+deg+'deg)';
- 			++deg;
- 			}, 30);	
- 	</script>
- 	</body>
+  <head>
+    <title>Awesomeness, coming soon to a computer near you</title>
+  </head>
+  <style type='text/css'>
+  body {
+    margin: 0px;
+  }
+  .background {
+    background: rgb(230,230,230);
+    margin:0px;
+  }
+  .container {
+    height:100vh;
+    width: 100vw;
+    margin: 0px
+  }
+  p {
+    margin:0px;
+  }
+  #main {
+    color: rgb(100,200,100);
+    font-size: 38px;
+    text-align: center;
+    position: relative;
+    top: 63%;
+  }
+  #sub {
+    font-size: 24px;
+    text-align: center;
+    position: relative;
+    top:65%;
+  }
+  #logo {
+    position: absolute;
+    top: 21%;
+    left: 50%;
+    margin-left: -125px;
+  }
+  </style>
+  <body>
+    <div class='background'>
+      <div class='container'>
+        <img src='data/logo.png' id='logo'>
+        <p id='main'>turtleDev</p>
+        <p id='sub'>Awesomeness, coming soon to a computer near you.</p>
+      </div>
+    </div>
+  <script type='text/javascript'>
+    var deg = 0;
+    element = document.getElementById('logo');
+    window.setInterval(function(element) {
+      element.style.webkitTransform = 'rotate('+deg+'deg)';
+      ++deg;
+      }, 30, element); 
+  </script>
+  </body>
 </html>
