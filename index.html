@@ -5,56 +5,90 @@
     <link rel="shortcut icon" href="data/icon.ico">
   </head>
   <style type='text/css'>
-  body {
-    margin: 0px;
+  /**
+   * animation
+   */
+  @keyframes rotate {
+      from { 
+          -webkit-transform: rotate(0deg);
+          -moz-transform: rotate(0deg);
+          -ms-transform: rotate(0deg);
+          -o-transform: rotate(0deg);
+          transform: rotate(0deg);
+      }
+      to {
+          -webkit-transform: rotate(360deg);
+          -moz-transform: rotate(360deg);
+          -ms-transform: rotate(360deg);
+          -o-transform: rotate(360deg);
+          transform: rotate(360deg);
+      }
   }
+
+  @-webkit-keyframes rotate {
+      from { 
+          -webkit-transform: rotate(0deg);
+          -moz-transform: rotate(0deg);
+          -ms-transform: rotate(0deg);
+          -o-transform: rotate(0deg);
+          transform: rotate(0deg);
+      }
+      to {
+          -webkit-transform: rotate(360deg);
+          -moz-transform: rotate(360deg);
+          -ms-transform: rotate(360deg);
+          -o-transform: rotate(360deg);
+          transform: rotate(360deg);
+      }
+  }
+
+  html, body {
+      height: 100%;
+      margin: 0px;
+  }
+
+  p, h1 {
+      text-align: center;
+  }
+
+  p {
+      font-size: 24px;
+      margin: 8px;
+  }
+
+  h1 {
+      font-size: 38px;
+      font-weight: normal;
+      color: rgb(100, 200, 100);
+      margin-top: 26px;
+      margin-bottom: 10px;
+  }
+
+  img {
+      display: block;
+      margin: auto;
+      animation: rotate 7s infinite linear;
+      -webkit-animation: rotate 7s infinite linear;
+  }
+
   .background {
-    background: rgb(230,230,230);
-    margin:0px;
+      background-color: rgb(230, 230, 230);
+      display: table;
+      height: 100%;
+      width: 100%;
   }
   .container {
-    height:100vh;
-    width: 100vw;
-    margin: 0px
-  }
-  p {
-    margin:0px;
-  }
-  #main {
-    color: rgb(100,200,100);
-    font-size: 38px;
-    text-align: center;
-    position: relative;
-    top: 63%;
-  }
-  #sub {
-    font-size: 24px;
-    text-align: center;
-    position: relative;
-    top:65%;
-  }
-  #logo {
-    position: absolute;
-    top: 21%;
-    left: 50%;
-    margin-left: -125px;
+      display: table-cell;
+      vertical-align: middle;
   }
   </style>
   <body>
     <div class='background'>
       <div class='container'>
         <img src='data/logo.png' id='logo'>
-        <p id='main'>turtleDev</p>
-        <p id='sub'>Awesomeness, coming soon to a computer near you.</p>
+        <h1>turtleDev</h1>
+        <p>Awesomeness, coming soon to a computer near you.</p>
       </div>
     </div>
-  <script type='text/javascript'>
-    var deg = 0;
-    element = document.getElementById('logo');
-    window.setInterval(function(element) {
-      element.style.webkitTransform = 'rotate('+deg+'deg)';
-      ++deg;
-      }, 30, element); 
-  </script>
   </body>
 </html>
