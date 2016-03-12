@@ -31,7 +31,6 @@
           -moz-transform: rotate(0deg);
           -ms-transform: rotate(0deg);
           -o-transform: rotate(0deg);
-          transform: rotate(0deg);
       }
       to {
           -webkit-transform: rotate(360deg);
@@ -39,6 +38,30 @@
           -ms-transform: rotate(360deg);
           -o-transform: rotate(360deg);
           transform: rotate(360deg);
+      }
+  }
+
+  @keyframes cursor {
+      0%{
+          color: rgba(0, 0, 0, 255);
+      }
+      50% {
+          color: rgba(0, 0, 0, 0);
+      }
+      0%{
+          color: rgba(0, 0, 0, 255);
+      }
+  }
+
+  @-webkit-keyframes cursor {
+      0%{
+          color: rgba(0, 0, 0, 255);
+      }
+      50% {
+          color: rgba(0, 0, 0, 0);
+      }
+      0%{
+          color: rgba(0, 0, 0, 255);
       }
   }
 
@@ -64,7 +87,7 @@
       margin-bottom: 10px;
   }
 
-  img {
+  #logo {
       display: block;
       margin: auto;
       height: 250px;
@@ -72,7 +95,7 @@
       -webkit-animation: rotate 7s infinite linear;
   }
 
-  .background {
+  .main {
       background-color: rgb(230, 230, 230);
       display: table;
       height: 100%;
@@ -82,14 +105,80 @@
       display: table-cell;
       vertical-align: middle;
   }
+  .footer {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      display: block;
+  }
+  .social-links {
+      display: table;
+      margin: auto;
+  }
+
+  .icon {
+      max-height:40px;
+  }
+
+  .blinky {
+      animation: cursor 1.5s infinite linear;
+      -webkit-animation: cursor 1.5s infinite linear;
+      font-weight: bold;
+  }
   </style>
   <body>
-    <div class='background'>
+    <div class='main'>
       <div class='container'>
         <img src='data/logo.png' id='logo'>
         <h1>turtleDev</h1>
-        <p>Awesomeness, coming soon to a computer near you.</p>
+        <p>
+          <span class='js-message'><!--Awesomeness, coming soon to a computer near you.--></span>
+          <span class='blinky'>_</span>
+        </p>
       </div>
     </div>
+    <div class='footer'>
+      <div class='social-links'>
+        <a href="www.github.com/turtledev" >
+          <img src='data/gh64b.png' class='icon'>
+        </a>
+      </div>
+    </div>
+    <script>
+    /**
+     * lights, camera, action!
+     */
+    (function() {
+        var script = [{
+            text: "Awesomeness",
+            delay: 1,
+            duration: 0.8
+        }, {
+            text: ", coming soon to a computer near you",
+            delay: 1,
+            duration: 2
+        }];
+
+        var stage = document.querySelector('.js-message');
+
+        script.reduce(function(info, scene) {
+            var dialogues = scene.text.split('');
+            var nextEpisode = ( scene.duration / dialogues.length ) * 1000;
+            var nextSeason = (info.timeOffset + scene.delay) * 1000;
+            setTimeout(function() {
+                var cut = setInterval(function() {
+                    var nextChar = dialogues.shift();
+                    if ( nextChar === undefined ) {
+                        clearInterval(cut);
+                        return;
+                    }
+                    stage.innerHTML += nextChar;
+                }, nextEpisode)
+            }, nextSeason)
+            info.timeOffset += scene.delay + scene.duration;
+            return info
+        }, { timeOffset: 1 })
+    })()
+    </script>
   </body>
 </html>
