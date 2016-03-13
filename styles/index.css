@@ -1,0 +1,123 @@
+/**
+ * animation
+ */
+@keyframes rotate {
+    from { 
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+        -moz-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        -o-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes rotate {
+    from { 
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+        -moz-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        -o-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes cursor {
+    0%{
+        color: rgba(0, 0, 0, 255);
+    }
+    50% {
+        color: rgba(0, 0, 0, 0);
+    }
+    0%{
+        color: rgba(0, 0, 0, 255);
+    }
+}
+
+@-webkit-keyframes cursor {
+    0%{
+        color: rgba(0, 0, 0, 255);
+    }
+    50% {
+        color: rgba(0, 0, 0, 0);
+    }
+    0%{
+        color: rgba(0, 0, 0, 255);
+    }
+}
+
+/**
+ * styles
+ */
+
+html, body {
+    height: 100%;
+    margin: 0px;
+}
+
+p, h1 {
+    text-align: center;
+}
+
+p {
+    font-size: 24px;
+    margin: 8px;
+}
+
+h1 {
+    font-size: 38px;
+    font-weight: normal;
+    color: rgb(100, 200, 100);
+    margin-top: 26px;
+    margin-bottom: 10px;
+}
+
+#logo {
+    display: block;
+    margin: auto;
+    height: 250px;
+    animation: rotate 7s infinite linear;
+    -webkit-animation: rotate 7s infinite linear;
+}
+
+.main {
+    background-color: rgb(220, 220, 220);
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+.container {
+    display: table-cell;
+    vertical-align: middle;
+}
+.footer {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    display: block;
+}
+.social-links {
+    display: table;
+    margin: auto;
+}
+
+.icon {
+    max-height:40px;
+}
+
+.blinky {
+    animation: cursor 1.5s infinite linear; -webkit-animation: cursor 1.5s infinite linear;
+    font-weight: bold;
+}
