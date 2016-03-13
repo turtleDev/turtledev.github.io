@@ -152,12 +152,13 @@
         var script = [{
             text: "Awesomeness",
             delay: 1,
-            duration: 0.8
+            duration: 0.6
         }, {
             text: ", coming soon to a computer near you",
             delay: 1,
-            duration: 2
+            duration: 1.2
         }];
+        var preShowCommercial = 1;
 
         var stage = document.querySelector('.js-message');
 
@@ -177,8 +178,8 @@
             }, nextSeason)
             info.timeOffset += scene.delay + scene.duration;
             return info
-        }, { timeOffset: 1 })
-    })()
+        }, { timeOffset: preShowCommercial })
+    })();
     </script>
   </body>
 </html>
