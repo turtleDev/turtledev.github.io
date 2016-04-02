@@ -4,6 +4,17 @@
  * lights, camera, action!
  */
 (function() {
+
+    function addClass(el, cls) {
+        if ( el.className.indexOf(cls) == -1 ) {
+            el.className += " " + cls;
+        }
+    }
+    
+    function removeClass(el, cls) {
+        el.className = el.className.replace(" " +cls, "");
+    }
+
     var director = "turtleDev";
     var chair = document.querySelector('.the-dude');
 
@@ -61,4 +72,25 @@
         info.timeOffset += scene.delay + scene.duration;
         return info
     }, { timeOffset: preShowCommercial })
+
+    var newMovie = document.querySelector('.greeting');
+    ticketCounter.addEventListener('click', function() {
+        newMovie.style.display = 'table';
+        removeClass(newMovie, 'hide');
+        addClass(newMovie, 'show');
+    })
+
+     var closeShow = document.querySelector('.greeting a[href="#"]');
+     closeShow.addEventListener('click', function() {
+        removeClass(newMovie, 'show');
+        addClass(newMovie, 'hide');
+ 
+ 	/**
+ 	 * XXX: make sure the timeout duration is equal to or greater than
+         * the CSS transition time
+         */
+        setTimeout(function() {
+            newMovie.style.display = 'none';
+        }, 1000);
+    })
 })();

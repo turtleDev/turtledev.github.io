@@ -34,6 +34,42 @@
     }
 }
 
+@keyframes animate-show {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes animate-show {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes animate-hide {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes animate-hide {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 @keyframes cursor {
     0%{
         color: rgba(0, 0, 0, 255);
@@ -56,6 +92,21 @@
     0%{
         color: rgba(0, 0, 0, 255);
     }
+}
+
+/**
+ * animation classes
+ *
+ * this are used to animate things on certain events, like
+ * hiding something on a button click etc
+ */
+
+.hide {
+    animation: animate-hide 1s ease;
+}
+
+.show {
+    animation: animate-show 1s ease;
 }
 
 /**
@@ -150,10 +201,26 @@ h1 {
     transform: rotate(-90deg);
 }
 
-.sidebar {
-    color: #fff;
+.greeting {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 1000;
+    display: none;
 }
 
-.content {
-    color: #000;
+.greeting p {
+    font-size: 18px;
 }
+
+.greeting a[href='#'] {
+    margin: 20px auto auto;
+    display: table;
+    border: 1px solid;
+    border-radius: 4px;
+    font-size: 1.2em;
+    padding: 10px;
+}
+
