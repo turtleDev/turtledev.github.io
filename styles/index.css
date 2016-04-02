@@ -65,6 +65,15 @@
 html, body {
     height: 100%;
     margin: 0px;
+    font-family: monospace;
+}
+
+a {
+    color: #000;
+}
+
+a:hover {
+    color: #000;
 }
 
 p, h1 {
@@ -98,16 +107,19 @@ h1 {
     height: 100%;
     width: 100%;
 }
+
 .container {
     display: table-cell;
     vertical-align: middle;
 }
+
 .footer {
     position: fixed;
     bottom: 10px;
     width: 100%;
     display: block;
 }
+
 .social-links {
     display: table;
     margin: auto;
@@ -118,6 +130,30 @@ h1 {
 }
 
 .blinky {
-    animation: cursor 1.5s infinite linear; -webkit-animation: cursor 1.5s infinite linear;
+    -webkit-animation: cursor 1.5s infinite linear;
+    animation: cursor 1.5s infinite linear;
     font-weight: bold;
+}
+
+.info {
+    position: fixed;
+    top: 50%;
+    right: 0;
+}
+
+.info span a {
+    display: block;
+    font-size: 1.6em;
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
+.sidebar {
+    color: #fff;
+}
+
+.content {
+    color: #000;
 }
