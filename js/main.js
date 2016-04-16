@@ -10,7 +10,7 @@
             el.className += " " + cls;
         }
     }
-    
+
     function removeClass(el, cls) {
         el.className = el.className.replace(" " +cls, "");
     }
@@ -84,7 +84,7 @@
      closeShow.addEventListener('click', function() {
         removeClass(newMovie, 'show');
         addClass(newMovie, 'hide');
- 
+
  	/**
  	 * XXX: make sure the timeout duration is equal to or greater than
          * the CSS transition time
