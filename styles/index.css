@@ -215,7 +215,7 @@ h1 {
     font-size: 18px;
 }
 
-.greeting a[href='#'] {
+.greeting a[href='javascript:void(0)'] {
     margin: 20px auto auto;
     display: table;
     border: 1px solid;

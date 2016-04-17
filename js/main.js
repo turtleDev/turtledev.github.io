@@ -80,13 +80,13 @@
         addClass(newMovie, 'show');
     })
 
-     var closeShow = document.querySelector('.greeting a[href="#"]');
+     var closeShow = document.querySelector('.greeting a[href="javascript:void(0)"]');
      closeShow.addEventListener('click', function() {
         removeClass(newMovie, 'show');
         addClass(newMovie, 'hide');
 
- 	/**
- 	 * XXX: make sure the timeout duration is equal to or greater than
+        /**
+         * XXX: make sure the timeout duration is equal to or greater than
          * the CSS transition time
          */
         setTimeout(function() {
