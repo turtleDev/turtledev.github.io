@@ -73,24 +73,9 @@
         return info
     }, { timeOffset: preShowCommercial })
 
-    var newMovie = document.querySelector('.greeting');
     ticketCounter.addEventListener('click', function() {
-        newMovie.style.display = 'table';
-        removeClass(newMovie, 'hide');
-        addClass(newMovie, 'show');
-    })
-
-     var closeShow = document.querySelector('.greeting a[href="javascript:void(0)"]');
-     closeShow.addEventListener('click', function() {
-        removeClass(newMovie, 'show');
-        addClass(newMovie, 'hide');
-
-        /**
-         * XXX: make sure the timeout duration is equal to or greater than
-         * the CSS transition time
-         */
-        setTimeout(function() {
-            newMovie.style.display = 'none';
-        }, 1000);
+        document.querySelector('.overlay').style.display = 'table';
+        addClass(document.querySelector('.overlay-left'), 'open');
+        addClass(document.querySelector('.overlay-right'), 'open');
     })
 })();
