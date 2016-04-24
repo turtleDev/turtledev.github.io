@@ -94,6 +94,64 @@
     }
 }
 
+@keyframes anim-overlay-left-open {
+    0% {
+        width: 100%;
+        opacity: 0;
+    }
+    50% {
+        width: 20%;
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+
+@-webkit-keyframes anim-overlay-left-open {
+    0% {
+        width: 100%;
+        opacity: 0;
+    }
+    50% {
+        width: 20%;
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes anim-overlay-right-open {
+    0% {
+        width: 0%;
+        opacity: 1;
+    }
+    50% {
+        width: 80%;
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+
+@-webkit-keyframes anim-overlay-right-open {
+    0% {
+        width: 0%;
+        opacity: 1;
+    }
+    50% {
+        width: 80%;
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 /**
  * animation classes
  *
@@ -152,7 +210,11 @@ h1 {
     -webkit-animation: rotate 7s infinite linear;
 }
 
-.main {
+.preview {
+    height: 100%;
+}
+
+.splash {
     background-color: rgb(220, 220, 220);
     display: table;
     height: 100%;
@@ -224,47 +286,6 @@ h1 {
     padding: 10px;
 }
 
-@keyframes anim-overlay-left-open {
-    0% {
-        width: 100%;
-        opacity: 0;
-    }
-    100% {
-        width: 20%;
-        opacity: 1;
-    }
-}
-
-
-@-webkit-keyframes anim-overlay-left-open {
-    0% {
-        width: 100%;
-        opacity: 0;
-    }
-    100% {
-        width: 20%;
-        opacity: 1;
-    }
-}
-
-@keyframes anim-overlay-right-open {
-    0% {
-        width: 0%;
-    }
-    100% {
-        width: 80%;
-    }
-}
-
-
-@-webkit-keyframes anim-overlay-right-open {
-    0% {
-        width: 0%;
-    }
-    100% {
-        width: 80%;
-    }
-}
 
 .overlay {
     display: none;
@@ -289,12 +310,35 @@ h1 {
 }
 
 .overlay-left.open {
-    animation: anim-overlay-left-open 1s linear;
+    animation: anim-overlay-left-open 1.6s ease-out;
     width: 20%;
-    opacity: 1;
+    opacity: 0;
 }
 
 .overlay-right.open {
-    animation: anim-overlay-right-open 1s linear;
+    animation: anim-overlay-right-open 1.6s ease-out;
     width: 80%;
+    opacity: 0;
+}
+
+.main {
+    display: none;
+    height: 100%;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 20%;
+    background-color: #8e44ad;
+}
+
+.content {
+    background-color: #ecf0f1;
+    padding-left: 20%;
+    width: 80%;
+    height: 100%;
+    display: table;
 }

@@ -75,7 +75,25 @@
 
     ticketCounter.addEventListener('click', function() {
         document.querySelector('.overlay').style.display = 'table';
-        addClass(document.querySelector('.overlay-left'), 'open');
-        addClass(document.querySelector('.overlay-right'), 'open');
+        var left = document.querySelector('.overlay-left'); 
+        var right = document.querySelector('.overlay-right'); 
+        addClass(left, 'open');
+        addClass(right, 'open');
+
+        /**
+         * XXX: time this correctly
+         *
+         * alternatively, find a way to obtain the necessary value
+         * for delay from the stylesheets programmatically.
+         */
+        setTimeout(function() {
+            document.querySelector('body')
+               .removeChild(document.querySelector('.preview'));    
+            document.querySelector('.main').style.display = 'block';
+        }, 800);
+        setTimeout(function() {
+            document.querySelector('body')
+               .removeChild(document.querySelector('.overlay'));    
+        }, 1600);
     })
 })();
