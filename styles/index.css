@@ -168,13 +168,22 @@
 }
 
 /**
+ * fonts
+ */
+
+@font-face {
+    font-family: 'lato';
+    src: url('fonts/Lato-Regular.ttf');
+}
+
+/**
  * styles
  */
 
 html, body {
     height: 100%;
     margin: 0px;
-    font-family: monospace;
+    font-family: 'lato', 'serif';
 }
 
 a {
@@ -205,6 +214,7 @@ ul, li {
 }
 
 .the-dude {
+    font-family: monospace;
     font-size: 38px;
     font-weight: normal;
     color: rgb(100, 200, 100);
@@ -265,6 +275,7 @@ ul, li {
 }
 
 .info span a {
+    font-family: monospace;
     display: block;
     font-size: 1.6em;
     -webkit-transform: rotate(-90deg);
@@ -309,7 +320,7 @@ ul, li {
     height: 100%;
     width: 20%;
     display: inline-block;
-    background-color: #8e44ad;
+    background-color: #4CAF50;
 }
 
 .overlay > .overlay-right {
@@ -342,7 +353,7 @@ ul, li {
     left: 0;
     height: 100%;
     width: 20%;
-    background-color: #8e44ad;
+    background-color: #4CAF50;
 }
 
 .content {
@@ -354,7 +365,7 @@ ul, li {
 }
 
 .navbar {
-    margin-top: 65px;
+    margin-top: 32px;
 }
 .nav {
     display: table;
@@ -363,4 +374,16 @@ ul, li {
     text-decoration: none;
     line-height:2.5em;
     font-size: 1.2em;
+}
+
+.display-pic {
+    display: table;
+    background-color: white;
+    margin: auto;
+    width: 175px;
+    border-radius: 200px;
+}
+
+.sidebar ul:nth-child(1) {
+    margin-top: 56px;
 }
