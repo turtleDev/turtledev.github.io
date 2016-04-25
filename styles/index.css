@@ -196,6 +196,7 @@ a:hover {
 
 p, h1 {
     text-align: center;
+    color: rgba(1, 1, 1, 0.57);
 }
 
 p {
@@ -260,6 +261,10 @@ ul, li {
 
 .icon {
     max-height:40px;
+}
+
+.message {
+    color: black;
 }
 
 .blinky {
@@ -367,6 +372,7 @@ ul, li {
 .navbar {
     margin-top: 32px;
 }
+
 .nav {
     display: table;
     margin: auto;
@@ -386,4 +392,14 @@ ul, li {
 
 .sidebar ul:nth-child(1) {
     margin-top: 56px;
+}
+
+.content {
+    display: table;
+}
+
+.content > .about {
+    display: table-cell;
+    vertical-align: middle;
+    width:100%;
 }
