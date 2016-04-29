@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <title>Awesomeness, coming soon to a computer near you</title>
+    <title>turtleDev - Saravjeet 'Aman' Singh</title>
     <meta charset='utf8' />
     <meta property='og:title' content='turtleDev' />
     <meta property='og:type' content='website' />
@@ -45,13 +45,13 @@
             <li><h1>turtleDev</h1></li>
         </ul>
         <ul class='navbar'>
-            <li><a href='javascript:void(0)' class='nav'>About</a></li>
-            <li><a href='javascript:void(0)' class='nav'>Projects</a></li>
-            <li><a href='javascript:void(0)' class='nav'>Contact</a></li>
+            <li class='active'><a href='javascript:void(0)' class='nav' data-target='#about'>About</a></li>
+            <li><a href='javascript:void(0)' class='nav' data-target='#projects'>Projects</a></li>
+            <li><a href='javascript:void(0)' class='nav' data-target='#contact'>Contact</a></li>
         </ul>
         </div>
         <div class='content'>
-            <div class='about'>
+            <div id='about' class='active'>
                 <h1>O Hai!</h1>
                 <p>Hi! I'm Saravjeet Singh, but my friends call me 'Aman'.</p>
                 <p>I'm a Software Developer from New Delhi, India.</p>
@@ -62,6 +62,12 @@
                 <p>You fire musket but I'll run you through</p>
                 <p>before the time of the next attack</p>
                 <p>understand that there's no turning back"</p>
+            </div>
+            <div id='contact'>
+                <h1>Say Hello</h1>
+            </div>
+            <div id='projects'>
+                <h1>My work</h1>
             </div>
         </div>
     </div>

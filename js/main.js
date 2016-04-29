@@ -5,6 +5,11 @@
  */
 (function() {
 
+    var $ = function(s) {
+        var x = document.querySelectorAll(s);
+        return [].slice.call(x, 0);
+    };
+
     function addClass(el, cls) {
         if ( el.className.indexOf(cls) == -1 ) {
             el.className += " " + cls;
@@ -94,6 +99,29 @@
         setTimeout(function() {
             document.querySelector('body')
                .removeChild(document.querySelector('.overlay'));    
+            addClass(document.querySelector('body'), 'open');
         }, 1600);
     })
+
+    $('.nav').forEach(function(nav) {
+        nav.addEventListener('click', function(e) {
+            e.preventDefault();
+            $('.nav').forEach(function(el) { el.parentNode.className = ''; });
+            addClass(e.target.parentNode, 'active');
+            var content = document.querySelector('.content');
+            removeClass(content, 'fade-toggle');
+            addClass(content, 'fade-toggle');
+            /**
+             * XXX: again, time these values correctly.
+             */
+            setTimeout(function() {
+                $('.content > *').forEach(function(el) { el.className = ''; });
+                addClass(document.querySelector(e.target.dataset.target), 'active');
+            }, 500);
+            setTimeout(function() {
+                removeClass(content, 'fade-toggle');
+            }, 1000);
+        });
+    });
+
 })();

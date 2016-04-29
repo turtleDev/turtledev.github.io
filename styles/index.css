@@ -152,10 +152,22 @@
     }
 }
 
+@keyframes fadeback{
+    0% {
+        opacity: 1
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 /**
  * animation classes
  *
- * this are used to animate things on certain events, like
+ * these are used to animate things on certain events, like
  * hiding something on a button click etc
  */
 
@@ -165,6 +177,10 @@
 
 .show {
     animation: animate-show 1s ease;
+}
+
+.fade-toggle {
+    animation: fadeback 1s linear;
 }
 
 /**
@@ -188,13 +204,14 @@ html, body {
 
 a {
     color: #000;
+    text-align: center;
 }
 
 a:hover {
     color: #000;
 }
 
-p, h1 {
+p, h1, a{
     text-align: center;
     color: rgba(1, 1, 1, 0.57);
 }
@@ -363,7 +380,7 @@ ul, li {
 
 .content {
     background-color: #ecf0f1;
-    padding-left: 20%;
+    margin-left: 20%;
     width: 80%;
     height: 100%;
     display: table;
@@ -376,10 +393,15 @@ ul, li {
 .nav {
     display: table;
     margin: auto;
+    width: 100%;
     line-height: 3.2em;
     text-decoration: none;
     line-height:2.5em;
     font-size: 1.2em;
+}
+
+.navbar > li.active {
+    background-color: rgba(0, 0, 0, 0.35);
 }
 
 .display-pic {
@@ -398,8 +420,20 @@ ul, li {
     display: table;
 }
 
-.content > .about {
+.content > div {
+    display: none;
+}
+
+div.content .active {
     display: table-cell;
     vertical-align: middle;
     width:100%;
+}
+
+.fade-toggle {
+    animation: fadeback 1s linear;
+}
+
+body.open {
+    background-color: #ecf0f1;
 }
