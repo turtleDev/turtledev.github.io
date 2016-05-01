@@ -187,10 +187,6 @@
  * fonts
  */
 
-@font-face {
-    font-family: 'lato';
-    src: url('fonts/Lato-Regular.ttf');
-}
 
 /**
  * styles
@@ -199,7 +195,7 @@
 html, body {
     height: 100%;
     margin: 0px;
-    font-family: 'lato', 'serif';
+    font-family: 'Raleway';
 }
 
 a {
@@ -285,8 +281,8 @@ ul, li {
 }
 
 .blinky {
-    -webkit-animation: cursor 1.5s infinite linear;
-    animation: cursor 1.5s infinite linear;
+    -webkit-animation: cursor 1.5s infinite steps(10, end);
+    animation: cursor 1.5s infinite steps(10, end);
     font-weight: bold;
 }
 
