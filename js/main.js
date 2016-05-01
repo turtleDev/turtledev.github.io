@@ -106,8 +106,8 @@
     $('.nav').forEach(function(nav) {
         nav.addEventListener('click', function(e) {
             e.preventDefault();
-            $('.nav').forEach(function(el) { el.parentNode.className = ''; });
-            addClass(e.target.parentNode, 'active');
+            $('.nav').forEach(function(el) { removeClass(el, 'active') });
+            addClass(e.target, 'active');
             var content = document.querySelector('.content');
             removeClass(content, 'fade-toggle');
             addClass(content, 'fade-toggle');
