@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
-'''
-    make.py -- build system
-'''
+import sys
+
+from build import main
+
+if __name__ == "__main__":
+    sys.exit(main())

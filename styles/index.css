@@ -415,3 +415,22 @@ div.content .active {
 body.open {
     background-color: #ecf0f1;
 }
+
+#projects {
+    vertical-align: top;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    margin: 24px;
+    height: 132px;
+    background-color: white;
+    overflow: hidden;
+}
+
+.card * {
+    text-align: left;
+    font-size: 1.3em;
+    margin-left: 14px;
+}
