@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import logging
 
 import requests
 
 logger = logging.getLogger(__name__)
+
+def transform(repo):
+    return {'name': repo['name'],
+            'url': repo['html_url'],
+            'description': repo['description'],
+            'forks': repo['forks'],
+            'watchers': repo['watchers'],
+            'stars': repo['stargazers_count']}
 
 def gh_projects(username):
     '''returns a list of github projects of :username:
@@ -16,21 +25,13 @@ def gh_projects(username):
 
     try:
         r = requests.get(repo_url)
-        repos = json.loads(r.content)
     except:
-        e = sys.exc_info().pop()
-        logger.warning('unable to download or parse repo data from github')
-        logger.warning(e)
+        e = sys.exc_info()[1]
+        logger.warning('unable to download data from github ({})'.format(e))
         return []
 
-    def transform(repo):
-        return {'name': repo['name'],
-                'url': repo['html_url'],
-                'description': repo['description'],
-                'forks': repo['forks'],
-                'watchers': repo['watchers'],
-                'stars': repo['stargazers_count']}
 
+    repos = json.loads(r.content)
     repos = filter(lambda r: r['fork'] is False, repos)
     repos = map(transform, repos)
     return repos

@@ -11,9 +11,9 @@
     };
 
     function addClass(el, cls) {
-        if ( el.className.indexOf(cls) == -1 ) {
-            el.className += " " + cls;
-        }
+        var classes = el.className.split(' ');
+        if ( classes.indexOf(cls) == -1 ) classes.push(cls);
+        el.className = classes.join(' ');
     }
 
     function removeClass(el, cls) {
@@ -123,5 +123,8 @@
             }, 1000);
         });
     });
+
+    // activate the first nav item
+    document.querySelector('.nav').click();
 
 })();

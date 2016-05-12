@@ -45,30 +45,19 @@
                 <h1>turtleDev</h1>
             </div>
             <div class="sidebar-item navbar">
-                <a href='javascript:void(0)' class='nav active' data-target='#about'>About</a>
+                {%- for page in pages %}
+                <a href='javascript:void(0)' class='nav' data-target='#{{ page.name }}'>{{ page.name.title() }}</a>
+                {% endfor %}
                 <a href='javascript:void(0)' class='nav' data-target='#projects'>Projects</a>
-                <a href='javascript:void(0)' class='nav' data-target='#contact'>Contact</a>
             </div>
         </div>
         <div class='content'>
-            <div id='about' class='active'>
-                <h1>O Hai!</h1>
-                <p>Hi! I'm Saravjeet Singh, but my friends call me 'Aman'.</p>
-                <p>I'm a Software Developer from New Delhi, India.</p>
-                <p>I currently work at <a href='javascript:void(0)'>infoclot</a></p>
-                <p>lorem ipsum ... you know how this ends, right ?</p>
-                <p>so this is just some random text for development purposes</p>
-                <p>"You take my life, but I'll take yours too!</p>
-                <p>You fire musket but I'll run you through</p>
-                <p>before the time of the next attack</p>
-                <p>understand that there's no turning back"</p>
+
+            {%- for page in pages %}
+            <div class='page' id='{{ page.name }}'>
+                {{ page.content }}
             </div>
-            <div id='contact'>
-                <h1>Say Hello</h1>
-                <p>You can email me at <u>saravjeetamansingh@gmail.com</u></p>
-                <p>I actively hang around the <a href='http://dev-s.slack.com'>dev-and-hackers</a> public team on slack. Drop by sometime!</p>
-                <p>You can join devs-and-hackers <a href='https://join.theindiangeek.in'/>here</a></p>
-            </div>
+            {% endfor %}
             <div id='projects'>
                 {% for project in projects %}
                 <div class="card">
