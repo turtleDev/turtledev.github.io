@@ -468,7 +468,7 @@ noscript {
     overflow: auto;
 }
 
-noscript div h1, p {
+noscript h1, noscript p {
     line-height: 1em;
     text-align: left;
     margin-left:14px;
