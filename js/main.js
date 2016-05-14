@@ -5,10 +5,15 @@
  */
 (function() {
 
+    var $ = function(s) {
+        var x = document.querySelectorAll(s);
+        return [].slice.call(x, 0);
+    };
+
     function addClass(el, cls) {
-        if ( el.className.indexOf(cls) == -1 ) {
-            el.className += " " + cls;
-        }
+        var classes = el.className.split(' ');
+        if ( classes.indexOf(cls) == -1 ) classes.push(cls);
+        el.className = classes.join(' ');
     }
 
     function removeClass(el, cls) {
@@ -73,24 +78,53 @@
         return info
     }, { timeOffset: preShowCommercial })
 
-    var newMovie = document.querySelector('.greeting');
     ticketCounter.addEventListener('click', function() {
-        newMovie.style.display = 'table';
-        removeClass(newMovie, 'hide');
-        addClass(newMovie, 'show');
-    })
+        document.querySelector('.overlay').style.display = 'table';
+        var left = document.querySelector('.overlay-left'); 
+        var right = document.querySelector('.overlay-right'); 
+        addClass(left, 'open');
+        addClass(right, 'open');
 
-     var closeShow = document.querySelector('.greeting a[href="#"]');
-     closeShow.addEventListener('click', function() {
-        removeClass(newMovie, 'show');
-        addClass(newMovie, 'hide');
-
- 	/**
- 	 * XXX: make sure the timeout duration is equal to or greater than
-         * the CSS transition time
+        /**
+         * XXX: time this correctly
+         *
+         * alternatively, find a way to obtain the necessary value
+         * for delay from the stylesheets programmatically.
          */
         setTimeout(function() {
-            newMovie.style.display = 'none';
-        }, 1000);
+            document.querySelector('body')
+               .removeChild(document.querySelector('.preview'));    
+            document.querySelector('.main').style.display = 'block';
+        }, 800);
+        setTimeout(function() {
+            document.querySelector('body')
+               .removeChild(document.querySelector('.overlay'));    
+            addClass(document.querySelector('body'), 'open');
+        }, 1600);
     })
+
+    $('.nav').forEach(function(nav) {
+        nav.addEventListener('click', function(e) {
+            e.preventDefault();
+            $('.nav').forEach(function(el) { removeClass(el, 'active') });
+            addClass(e.target, 'active');
+            var content = document.querySelector('.content');
+            removeClass(content, 'fade-toggle');
+            addClass(content, 'fade-toggle');
+            /**
+             * XXX: again, time these values correctly.
+             */
+            setTimeout(function() {
+                $('.content > *').forEach(function(el) { el.className = ''; });
+                addClass(document.querySelector(e.target.dataset.target), 'active');
+            }, 500);
+            setTimeout(function() {
+                removeClass(content, 'fade-toggle');
+            }, 1000);
+        });
+    });
+
+    // activate the first nav item
+    document.querySelector('.nav').click();
+
 })();

@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>turtleDev - Saravjeet 'Aman' Singh</title>
+    <meta charset='utf8' />
+    <meta property='og:title' content='turtleDev' />
+    <meta property='og:type' content='website' />
+    <meta property='og:url' content='http://turtledev.in' />
+    <meta property='og:image' content='https://github.com/turtleDev/turtleDev.github.io/blob/master/assets/logo2.png' />
+    <link rel='shortcut icon' href='assets/icon.ico' />
+    <link rel='stylesheet' href='styles/index.css' />
+  </head>
+  <body>
+    <div class='preview'>
+      <div class='splash'>
+        <div class='container'>
+          <img src='assets/logo.png' id='logo'>
+          <h1 class='the-dude'>
+              &nbsp;
+              <!--turtleDev-->
+          </h1>
+          <p>
+            <span class='message'><!--Awesomeness, coming soon to a computer near you.--></span>
+            <span class='blinky'>_</span>
+          </p>
+        </div>
+      </div>
+      <div class='footer'>
+        <div class='social-links'>
+          <a href='http://www.github.com/turtledev' >
+            <img src='assets/gh64b.png' class='icon'>
+          </a>
+        </div>
+      </div>
+      <div class='info'>
+          <span><a href='javascript:void(0)'><!--info--></a></span>
+      </div>
+    </div>
+    <div class='main'>
+        <div class='sidebar'>
+            <div class="sidebar-item">
+                <img src='assets/logo2.png' class='display-pic'>
+            </div>
+            <div class="sidebar-item">
+                <h1>turtleDev</h1>
+            </div>
+            <div class="sidebar-item navbar">
+                {%- for page in pages %}
+                <a href='javascript:void(0)' class='nav' data-target='#{{ page.name }}'>{{ page.name.title() }}</a>
+                {% endfor %}
+                <a href='javascript:void(0)' class='nav' data-target='#projects'>Projects</a>
+            </div>
+        </div>
+        <div class='content'>
+
+            {%- for page in pages %}
+            <div class='page' id='{{ page.name }}'>
+                {{ page.content }}
+            </div>
+            {% endfor %}
+            <div id='projects'>
+                {%- for project in projects %}
+                <a class="card" href="{{project.url}}">
+                    <div>
+                        <h1>{{project.name}}</h1>
+                        <p>{{project.description}}</p>
+                    </div>
+                    {%- if project.stars in defined or project.forks is defined %}
+                    <div>
+                        {%- if project.stars is defined %}<div><svg width='14px' height='14px' {{icons.star}} ></svg><span>{{project.stars}}</span></div>{% endif %}
+                        {%- if project.forks is defined %}<div><svg width='14px' height='14px' {{icons.fork}} ></svg><span>{{project.forks}}</span></div>{% endif %}
+                    </div>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class='overlay'>
+        <div class='overlay-left'></div>
+        <div class='overlay-right'> </div>
+    </div>
+  </body>
+  <script src='js/scramble.js'></script>
+  <script src='js/main.js'></script>
+</html>
