@@ -11,6 +11,18 @@
     <link rel='stylesheet' href='styles/index.css' />
   </head>
   <body>
+    <noscript>
+        <div>
+            {%- for page in pages %}
+                {{ page.content }}
+            {% endfor %}
+            <h1>Projects</h1>
+            <ul>
+            {%- for project in projects %}
+            <li><p><a href='{{ project.url }}'>{{ project.name }}</a></p></li>
+            {% endfor %}
+        </div>
+    </noscript>
     <div class='preview'>
       <div class='splash'>
         <div class='container'>
