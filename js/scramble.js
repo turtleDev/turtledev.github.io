@@ -173,21 +173,10 @@
             /* get list of selected DOM elements */
             var els = this.get();
 
-            if ( action == undefined || action == "enscramble" ) {
+            var action = action || "enscramble";
+            if ( exports[action] ) {
                 els.forEach(function(el) {
-                    exports.enscramble(el);
-                });
-            } else if ( action == "descramble" ) {
-                els.forEach(function(el) {
-                    exports.descramble(el);
-                });
-            } else if ( action == "setText" ) {
-                els.forEach(function(el) {
-                    exports.setText(el, arg);
-                });
-            } else if ( action == "createEmpty" ) {
-                els.forEach(function(el) {
-                    exports.createEmpty(el, arg);
+                    exports[action](el, arg);
                 });
             } else if ( action == "export" ) {
                 return exports;
