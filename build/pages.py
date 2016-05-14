@@ -7,6 +7,9 @@
 import os
 import codecs
 
+
+from markdown import markdown
+
 def pages(path):
     rendered = []
     top = os.walk(path).next()
@@ -15,7 +18,7 @@ def pages(path):
     files.sort()
     for k in files:
         path = os.path.join(base, k)
-        item = {'content': codecs.encode(os.popen('markdown {}'.format(path)).read(), 'UTF-8'),
+        item = {'content': markdown(codecs.open(path, 'r', 'UTF-8').read()),
                 'name': k}
         rendered.append(item)
     return rendered
