@@ -422,15 +422,39 @@ body.open {
 
 .card {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
     margin: 24px;
     height: 132px;
     background-color: white;
     overflow: hidden;
+    text-decoration: none;
+    padding: 0px 10px;
 }
 
 .card * {
+    font-size: 1.1em;
     text-align: left;
-    font-size: 1.3em;
-    margin-left: 14px;
 }
+
+.card p {
+    margin-left: 0px;
+}
+
+.card > div:nth-child(2) {
+    display:flex;
+    margin-top: 4px;
+}
+
+.card > div:nth-child(2) > div + div {
+    margin-left: 6px;
+}
+
+.card svg {
+    fill: rgba(0, 0, 0, 0.57);
+}
+
+.card:hover {
+    color: rgba(0, 0, 0, 0.57);
+}
+

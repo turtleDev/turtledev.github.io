@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import logging
 
 from build import main
 
