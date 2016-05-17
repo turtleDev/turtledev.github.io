@@ -318,7 +318,7 @@ ul, li {
     height: 100%;
     width: 20%;
     display: inline-block;
-    background-color: #4CAF50;
+    background-color: #673AB7;
 }
 
 .overlay > .overlay-right {
@@ -351,7 +351,7 @@ ul, li {
     left: 0;
     height: 100%;
     width: 20%;
-    background-color: #4CAF50;
+    background-color: #673AB7;
 }
 
 .sidebar-item {
@@ -374,6 +374,10 @@ ul, li {
     align-items: center;
 }
 
+.sidebar-item h1 {
+    color:rgba(255, 255, 255, 0.9);
+}
+
 a.nav {
     min-width: calc(46%);
     padding: 8px 46px;
@@ -387,8 +391,8 @@ a.nav.active {
 }
 
 .display-pic {
+    animation: rotate 18s linear infinite;
     display: table;
-    background-color: white;
     margin: auto;
     width: 175px;
     border-radius: 200px;
