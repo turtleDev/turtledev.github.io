@@ -65,14 +65,15 @@
         var nextEpisode = ( scene.duration / dialogues.length ) * 1000;
         var nextSeason = (info.timeOffset + scene.delay) * 1000;
         setTimeout(function() {
-            var cut = setInterval(function() {
+            var _cut = function() {
                 var nextChar = dialogues.shift();
-                if ( nextChar === undefined ) {
-                    clearInterval(cut);
-                    return;
-                }
+                if ( nextChar === undefined ) return; 
                 stage.innerHTML += nextChar;
-            }, nextEpisode)
+                setTimeout(function() {
+                    _cut()
+                }, nextEpisode);
+            }
+            setTimeout(_cut, nextEpisode)
         }, nextSeason)
         info.timeOffset += scene.delay + scene.duration;
         return info
