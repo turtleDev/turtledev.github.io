@@ -1,0 +1,97 @@
+/* fonts */
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url(/styles/fonts/noto-sans.ttf) format('woff2');
+}
+
+/* base */
+html, body {
+    max-width: 700px;
+    margin: auto;
+    font-family: Noto Sans;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    margin-bottom: 8px;
+}
+
+h1 { font-size: 4rem; }
+h2 { font-size: 2.6rem; }
+
+p {
+    margin: 0px;
+    margin-bottom: 8px;
+}
+
+/* utilities */
+.u-text-right {
+    text-align: right;
+}
+
+.u-text-center {
+    text-align: center;
+}
+
+.u-pull-right { 
+    float: right;
+}
+
+@media (max-width: 19em) {
+    .u-text-right {
+        text-align: left;
+    }
+}
+
+/* main */
+
+.header {
+    margin: 2em 0;
+}
+
+.section { }
+.sub-section { }
+.sub-section .box {
+    border-left: 3px solid #9b4dca;
+    padding: 0 14px;
+
+}
+
+.section > * {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.block {
+    display: block;
+    margin-bottom: 2px;
+}
+
+.box {
+    margin-bottom: 14px;
+}
+
+.pad { }
+.pad::after{
+    content: "";
+    display: block;
+    margin-bottom: 1rem;
+}
+
+ul.feature-list li {
+    display: block;
+    margin-bottom: 0;
+}
+ul.feature-list li::before {
+    content: "- ";
+}
+
+/* misc */
+.scramble-animate {
+    font-family: 'monospace';
+}
+
