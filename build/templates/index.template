@@ -94,6 +94,6 @@
         <div class='overlay-right'> </div>
     </div>
   </body>
-  <script src='js/scramble.js'></script>
+  <script src='js/scramble-legacy.js'></script>
   <script src='js/main.js'></script>
 </html>
