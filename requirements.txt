@@ -1,5 +1,0 @@
-Jinja2==2.8
-Markdown==2.6.6
-MarkupSafe==0.23
-requests==2.10.0
-wheel==0.26.0
