@@ -1,0 +1,3 @@
+[submodule "themes/garage"]
+	path = themes/garage
+	url = https://github.com/turtleDev/garage
