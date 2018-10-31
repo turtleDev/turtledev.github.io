@@ -1,4 +1,18 @@
-baseURL = "http://example.org/"
+baseURL = "https://turtledev.in/"
 languageCode = "en-us"
-title = "My New Hugo Site"
+title = "turtleDev"
 theme = "garage"
+
+pygmentsUseClasses = "true"
+
+[params]
+    favicon_32 = "/assets/icon.png"
+    favicon_16 = "/assets/icon.png"
+    custom_css = [
+        "/styles/syntax.css"
+    ]
+
+[[menu.main]]
+    name = "Blog"
+    weight = 1
+    url = "/posts/"
