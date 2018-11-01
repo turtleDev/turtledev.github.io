@@ -6,13 +6,18 @@ theme = "garage"
 pygmentsUseClasses = "true"
 
 [params]
+    author = "Saravjeet 'Aman' Singh"
+    decription = "turtledev's little corner of the internet"
+    keywords = "blog,developer,personal"
     favicon_32 = "/assets/icon.png"
     favicon_16 = "/assets/icon.png"
     custom_css = [
         "/styles/syntax.css"
     ]
 
-[[menu.main]]
-    name = "Blog"
-    weight = 1
-    url = "/posts/"
+# TODO(turtledev): enable this when you add
+# some blog posts.
+# [[menu.main]]
+#     name = "Blog"
+#     weight = 1
+#     url = "/posts/"
