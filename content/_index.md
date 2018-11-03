@@ -6,7 +6,7 @@ draft: false
 
 # Hello, Traveller!
 
-I'm **turtleDev**, a self-proclaimed practioner of the mystic arts.
+I'm **turtleDev**, a self-proclaimed practitioner of the mystic arts.
 
 My dream was to become a computer programmer, but it turns out, it wasn't that hard to accomplish. So I'm on the hunt for my next dream :). I like reinventing the wheel, creating things for no other reason than just because I can. I'm inspired by GNU/Linux and it's ecosystem of projects and one day hope to become a regular contributor to it.
 
