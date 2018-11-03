@@ -13,3 +13,5 @@ My dream was to become a computer programmer, but it turns out, it wasn't that h
 When I'm not writing code, I like to read Manga & Books; occasionally I'll indulge in a Novel or two. I also love to play computer games, and game exclusively on Linux to help support the Linux Gaming ecosystem. 
 
 This here is my little corner of the Internet, a place where I can put my thoughts down, and maybe help out someone along the way. I feel that knowledge is the most important thing that one can pass down, and this is my attempt to build an archive of my life experiences and discoveries.
+
+Here be dragons ... and turtles!
