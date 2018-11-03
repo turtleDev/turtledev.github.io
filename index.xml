@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>turtleDev&#39;s Home Page on turtleDev</title>
+    <link>https://turtledev.in/</link>
+    <description>Recent content in turtleDev&#39;s Home Page on turtleDev</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 29 Oct 2018 02:53:59 +0530</lastBuildDate>
+    
+	<atom:link href="https://turtledev.in/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+  </channel>
+</rss>
