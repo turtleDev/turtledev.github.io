@@ -2,12 +2,15 @@ baseURL = "https://turtledev.in/"
 languageCode = "en-us"
 title = "turtleDev"
 theme = "garage"
+canonifyURLs = true
+enableRobotsTXT = true
 
 pygmentsUseClasses = "true"
 
 [params]
     author = "Saravjeet 'Aman' Singh"
     decription = "turtledev's little corner of the internet"
+    image = "/assets/logo2.png"
     keywords = "blog,developer,personal"
     favicon_32 = "/assets/icon.png"
     favicon_16 = "/assets/icon.png"
