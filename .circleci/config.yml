@@ -16,6 +16,8 @@ jobs:
       SSH_KEY_PATH: /tmp/gk 
     steps:
       - checkout
+      - run: git config --global user.email "saravjeetamansingh@gmail.com"
+      - run: git config --global user.name "turtleDev (via CircleCI)"
       - run: echo "${SSH_KEY}" > ${SSH_KEY_PATH}
       - run: GIT_SSH_COMMAND="ssh -i ${SSH_KEY_PATH}" git submodule add -f -b master git@github.com:turtledev/turtledev.github.io public
       - run: rm public/* -r
