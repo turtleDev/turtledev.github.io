@@ -1,8 +1,4 @@
 # CI Configuration
-# only commits on 'source' branch are built and deployed.
-# this configuration requires the following environment values
-# to be set up:
-#   * SSH_KEY (github deploy key)
 version: 2
 
 jobs:
@@ -20,6 +16,7 @@ jobs:
       - run: |
           git config --global user.email "saravjeetamansingh@gmail.com"
           git config --global user.name "turtleDev (via CircleCI)"
+          git submodule init
           git submodule add -f -b master git@github.com:turtledev/turtledev.github.io public
           rm public/* -r
           ./hugow
