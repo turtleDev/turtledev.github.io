@@ -19,7 +19,7 @@ jobs:
       - run: |
           git config --global user.email "saravjeetamansingh@gmail.com"
           git config --global user.name "turtleDev (via CircleCI)"
-          git submodule init
+          git submodule update --init
           git submodule add -f -b master git@github.com:turtledev/turtledev.github.io public
           rm public/* -r
           ./hugow
