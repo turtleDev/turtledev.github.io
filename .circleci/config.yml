@@ -16,8 +16,8 @@ jobs:
       SSH_KEY_PATH: /tmp/gk 
     steps:
       - add_ssh_keys:
-        fingerprints:
-          - "63:99:b3:4d:ec:94:fb:d0:27:84:0e:0c:86:0e:a8:49"
+          fingerprints:
+            - "63:99:b3:4d:ec:94:fb:d0:27:84:0e:0c:86:0e:a8:49"
       - checkout
       - run: git config --global user.email "saravjeetamansingh@gmail.com"
       - run: git config --global user.name "turtleDev (via CircleCI)"
