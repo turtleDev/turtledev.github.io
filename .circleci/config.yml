@@ -8,10 +8,9 @@ jobs:
       # images don't contain a simple base os image, so I'm opting for
       # this one, since it's the closest to my purpose.
       - image: circleci/golang:1.10-stretch
-    
     branches:
-      - source
-
+      only:
+        - source
     steps:
       - add_ssh_keys:
           fingerprints:
