@@ -2,6 +2,7 @@ baseURL = "https://turtledev.in/"
 languageCode = "en-us"
 title = "turtleDev"
 theme = "garage"
+googleAnalytics = "UA-93772960-2"
 canonifyURLs = true
 enableRobotsTXT = true
 
