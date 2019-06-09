@@ -19,9 +19,7 @@ pygmentsUseClasses = "true"
         "/styles/syntax.css"
     ]
 
-# TODO(turtledev): enable this when you add
-# some blog posts.
-# [[menu.main]]
-#     name = "Blog"
-#     weight = 1
-#     url = "/posts/"
+[[menu.main]]
+    name = "Blog"
+    weight = 1
+    url = "/posts/"
