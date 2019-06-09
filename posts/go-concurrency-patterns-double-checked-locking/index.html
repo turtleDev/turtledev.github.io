@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Saravjeet &#39;Aman&#39; Singh">
+    
+    <meta name="keywords" content="blog,developer,personal">
+
+    <base href="https://turtledev.in/">
+    <title>
+  Golang Concurrency Patterns: Double Checked Locking · turtleDev
+</title>
+
+    <link rel="canonical" href="https://turtledev.in/posts/go-concurrency-patterns-double-checked-locking/">
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700|Noto+Sans:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" integrity="sha256-oSrCnRYXvHG31SBifqP2PM1uje7SJUyX0nTwO2RJV54=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://turtledev.in/css/coder.min.75322760791ffebede54c919527432cbf286bc1426f94284313fcd1b0167441d.css" integrity="sha256-dTInYHkf/r7eVMkZUnQyy/KGvBQm&#43;UKEMT/NGwFnRB0=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://turtledev.in/styles/syntax.css">
+    
+
+    <link rel="icon" type="image/png" href="https://turtledev.in/assets/icon.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://turtledev.in/assets/icon.png" sizes="16x16">
+
+    
+
+    <meta name="generator" content="Hugo 0.49" />
+  </head>
+
+  <body class="">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://turtledev.in/">
+      turtleDev
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    
+
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://turtledev.in/posts/">Blog</a>
+          </li>
+        
+      
+      
+    </ul>
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Golang Concurrency Patterns: Double Checked Locking</h1>
+        </div>
+        <div class="post-meta">
+          <span class="posted-on">
+            <time datetime='2019-06-09T02:04:38&#43;05:30'>
+              June 9, 2019
+            </time>
+          </span>
+        </div>
+      </header>
+
+      <div>
+        
+
+<p>Golang is quite pecuiliar in the way that it approaches Object Oriented Programming.
+Almost all of us are familiar with some OO language that either has classes or plain
+objects with a delegation mechanism (I&rsquo;m looking at you, JavaScript)</p>
+
+<p>And yet it&rsquo;s exhilarating to write OO style code in Golang. I never realised I could do
+so much (if not everything) without classes and generics. My code ends up being a lot more
+robust and malleable.</p>
+
+<p>As with most other things in Programming, whenever you learn a new language and/or stack, you
+tend to bring with you your previous knowledge and preferences. Among these are design patterns,
+and in context of this blog post; concurrency patterns. One such pattern is the
+<a href="https://en.wikipedia.org/wiki/Double-checked_locking">Check Lock Check</a> (aka Double-checked locking) pattern.</p>
+
+<p>Wikipedia defines Check Lock Check as:</p>
+
+<blockquote>
+<p>In software engineering, double-checked locking (also known as &ldquo;double-checked locking optimization&rdquo;) is a software design pattern used to reduce the overhead of acquiring a lock by testing the locking criterion (the &ldquo;lock hint&rdquo;) before acquiring the lock. Locking occurs only if the locking criterion check indicates that locking is required.</p>
+</blockquote>
+
+<p>Here is an example of this pattern (from wiki)
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+<span class="kn">import</span> <span class="s">&#34;sync&#34;</span>
+
+<span class="kd">var</span> <span class="nx">arrMu</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+<span class="kd">var</span> <span class="nx">arr</span> <span class="p">[]</span><span class="kt">int</span>
+
+<span class="c1">// getArr retrieves arr, lazily initializing if needed. Double-checked locking
+</span><span class="c1">// avoids locking the entire function, and ensures that arr will be
+</span><span class="c1">// initialized only once.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nx">getArr</span><span class="p">()</span> <span class="o">*</span><span class="p">[]</span><span class="kt">int</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="nx">arr</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span> <span class="c1">// 1st check
+</span><span class="c1"></span>        <span class="k">return</span> <span class="o">&amp;</span><span class="nx">arr</span> 
+    <span class="p">}</span>   
+
+    <span class="nx">arrMu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+    <span class="k">defer</span> <span class="nx">arrMu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nx">arr</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span> <span class="c1">// 2nd check
+</span><span class="c1"></span>        <span class="k">return</span> <span class="o">&amp;</span><span class="nx">arr</span>
+    <span class="p">}</span>
+    <span class="nx">arr</span> <span class="p">=</span> <span class="p">[]</span><span class="kt">int</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">}</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">arr</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// thanks to double-checked locking, two goroutines attempting to getArr()
+</span><span class="c1"></span>    <span class="c1">// will not cause double-initialization
+</span><span class="c1"></span>    <span class="k">go</span> <span class="nx">getArr</span><span class="p">()</span>
+    <span class="k">go</span> <span class="nx">getArr</span><span class="p">()</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div></p>
+
+<p>Double checked locking let&rsquo;s you make lazy initialisations idempotent and thread safe. Though
+that sounds good on paper, is it really that practical in real applications?</p>
+
+<p>Let&rsquo;s think about what lazy initialisation is used for:</p>
+
+<ul>
+<li>to defer initialisation of expensive resources until they are actually required (virtual proxy)</li>
+<li>to defer initialisation until certain facts have been determined (factory)</li>
+</ul>
+
+<p>Let&rsquo;s look at an example of a virtual proxy:</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;io&#34;</span>
+	<span class="s">&#34;os&#34;</span>
+	<span class="s">&#34;sync&#34;</span>
+	<span class="s">&#34;time&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span> <span class="nx">virtualFile</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">closed</span> <span class="kt">bool</span>
+	<span class="nx">mu</span>     <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+	<span class="nx">fd</span>     <span class="o">*</span><span class="nx">os</span><span class="p">.</span><span class="nx">File</span>
+	<span class="nx">Path</span>   <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">file</span> <span class="o">*</span><span class="nx">virtualFile</span><span class="p">)</span> <span class="nx">Read</span><span class="p">(</span><span class="nx">p</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="nx">n</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">file</span><span class="p">.</span><span class="nx">fd</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">file</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+		<span class="k">defer</span> <span class="nx">file</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+		<span class="k">if</span> <span class="nx">file</span><span class="p">.</span><span class="nx">fd</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="nx">f</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">Path</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">err</span>
+			<span class="p">}</span>
+			<span class="nx">file</span><span class="p">.</span><span class="nx">fd</span> <span class="p">=</span> <span class="nx">f</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">file</span><span class="p">.</span><span class="nx">fd</span><span class="p">.</span><span class="nx">Read</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">file</span> <span class="o">*</span><span class="nx">virtualFile</span><span class="p">)</span> <span class="nx">Close</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">file</span><span class="p">.</span><span class="nx">closed</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+	<span class="nx">file</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+	<span class="k">defer</span> <span class="nx">file</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">file</span><span class="p">.</span><span class="nx">closed</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">file</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+	<span class="nx">file</span><span class="p">.</span><span class="nx">closed</span> <span class="p">=</span> <span class="kc">true</span>
+	<span class="k">return</span> <span class="nx">err</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">process</span><span class="p">(</span><span class="nx">r</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">done</span> <span class="kd">func</span><span class="p">())</span> <span class="p">{</span>
+	<span class="k">defer</span> <span class="nx">done</span><span class="p">()</span>
+	<span class="c1">// do some other work
+</span><span class="c1"></span>	<span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+	<span class="nx">buf</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span> <span class="c1">// 4kb
+</span><span class="c1"></span>	<span class="k">for</span> <span class="p">{</span>
+		<span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Read</span><span class="p">(</span><span class="nx">buf</span><span class="p">)</span>
+		<span class="c1">// do stuff
+</span><span class="c1"></span>	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">f</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">virtualFile</span><span class="p">{</span><span class="nx">Path</span><span class="p">:</span> <span class="s">&#34;/var/log/byte-stream-log&#34;</span><span class="p">}</span>
+	<span class="kd">var</span> <span class="nx">wg</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span>
+	<span class="nx">wg</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="k">go</span> <span class="nx">process</span><span class="p">(</span><span class="nx">f</span><span class="p">,</span> <span class="nx">wg</span><span class="p">.</span><span class="nx">Done</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">wg</span><span class="p">.</span><span class="nx">Wait</span><span class="p">()</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>Here we have a program that reads 4kb chunks from a shared source file and does something with it.
+Now this may look like a good idea, except it isn&rsquo;t that great considering what you gain from it.
+Startup times are usually not a problem for networked applications (though they maybe an issue, for
+short lived services). Use this pattern for lazy initialisation where the gain from delaying the initialisation
+is worth the added maintaince cost. In most cases, initialising things at the start of the program should
+be more than enough. Use this pattern for lazy initialisations sparingly.</p>
+
+<p>(side note: I&rsquo;m not sure if reading a file from different goroutines sans synchronisation is a good idea. It works
+on Linux/Mac/Windows but I&rsquo;m not familiar enough with threads and system calls to say this operation is safe. Stay
+safe kids, don&rsquo;t rely on magic.)</p>
+
+<p>Moving on to the next use: factories. Well to be exact, factories with caching/pooling. Why the distinction?
+Let&rsquo;s look at a typical use pattern for a factory:</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;net/http&#34;</span>
+	<span class="s">&#34;strings&#34;</span>
+<span class="p">)</span>
+
+<span class="c1">// Service represents an external service
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Service</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Do</span><span class="p">(</span><span class="nx">action</span> <span class="kt">string</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// ServiceFactory is a component capable of constructing
+</span><span class="c1">// a service interface with a given service name
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">ServiceFactory</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">New</span><span class="p">(</span><span class="nx">serviceName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">Service</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// stub service implementations
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">FooService</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Service</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">BarService</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Service</span>
+<span class="p">}</span>
+
+<span class="c1">// default ServiceFactory implementation
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">serviceFactory</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// data
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">fac</span> <span class="o">*</span><span class="nx">serviceFactory</span><span class="p">)</span> <span class="nx">New</span><span class="p">(</span><span class="nx">serviceName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">Service</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">serviceName</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">TrimSpace</span><span class="p">(</span><span class="nx">serviceName</span><span class="p">)</span>
+	<span class="k">switch</span> <span class="nx">serviceName</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="s">&#34;foo&#34;</span><span class="p">:</span>
+		<span class="k">return</span> <span class="o">&amp;</span><span class="nx">FooService</span><span class="p">{</span> <span class="cm">/* service specific config */</span> <span class="p">},</span> <span class="kc">nil</span>
+	<span class="k">case</span> <span class="s">&#34;bar&#34;</span><span class="p">:</span>
+		<span class="k">return</span> <span class="o">&amp;</span><span class="nx">BarService</span><span class="p">{</span> <span class="cm">/* service specific config */</span> <span class="p">},</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&#34;don&#39;t know how to construct %s&#34;</span><span class="p">,</span> <span class="nx">serviceName</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">serviceHandler</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">srvFactory</span> <span class="nx">ServiceFactory</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">handler</span> <span class="o">*</span><span class="nx">serviceHandler</span><span class="p">)</span> <span class="nx">ServeHTTP</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+
+	<span class="c1">// the code below extracts the service name
+</span><span class="c1"></span>	<span class="c1">// and action name
+</span><span class="c1"></span>	<span class="nx">pathComponents</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Split</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Path</span><span class="p">,</span> <span class="s">&#34;/&#34;</span><span class="p">)</span>
+	<span class="nx">l</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">pathComponents</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+	<span class="k">if</span> <span class="nx">pathComponents</span><span class="p">[</span><span class="nx">l</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;/&#34;</span> <span class="p">{</span>
+		<span class="nx">pathComponents</span> <span class="p">=</span> <span class="nx">pathComponents</span><span class="p">[:</span><span class="nx">l</span><span class="p">]</span>
+		<span class="nx">l</span> <span class="p">=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">pathComponents</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">actionName</span> <span class="o">:=</span> <span class="nx">pathComponents</span><span class="p">[</span><span class="nx">l</span><span class="p">]</span>
+	<span class="nx">srvName</span> <span class="o">:=</span> <span class="nx">pathComponents</span><span class="p">[</span><span class="nx">l</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+	<span class="c1">// construct the service from the factory
+</span><span class="c1"></span>	<span class="c1">// and call the specified action
+</span><span class="c1"></span>	<span class="nx">srv</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">srvFactory</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">srvName</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">w</span><span class="p">.</span><span class="nx">WriteHeader</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusNotFound</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+	<span class="nx">srv</span><span class="p">.</span><span class="nx">Do</span><span class="p">(</span><span class="nx">actionName</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">handler</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">serviceHandler</span><span class="p">{</span>
+		<span class="nx">srvFactory</span><span class="p">:</span> <span class="nb">new</span><span class="p">(</span><span class="nx">serviceFactory</span><span class="p">),</span>
+	<span class="p">}</span>
+
+	<span class="c1">// requests will be of the form
+</span><span class="c1"></span>	<span class="c1">// /v0/dispatch/&lt;serviceName&gt;/&lt;action&gt;
+</span><span class="c1"></span>	<span class="nx">http</span><span class="p">.</span><span class="nx">Handle</span><span class="p">(</span><span class="s">&#34;/v0/dispatch/&#34;</span><span class="p">,</span> <span class="nx">handler</span><span class="p">)</span>
+	<span class="nx">http</span><span class="p">.</span><span class="nx">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>Do you see the problem? A service object will be constructed for each request even though
+we only have a few service implementations. Now <em>this</em> can be a valid use case in case
+each constructed service <em>has to be</em> constructed for every request, probably involving some
+form of request scoping. However what if you wanted to share them? Let&rsquo;s rewrite the service factory
+implementation to use double checked locking.</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// default ServiceFactory implementation
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">serviceFactory</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">mu</span>    <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+	<span class="nx">cache</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">Service</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">fac</span> <span class="o">*</span><span class="nx">serviceFactory</span><span class="p">)</span> <span class="nx">New</span><span class="p">(</span><span class="nx">serviceName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">Service</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c1">// check if the service has already been constructed -- (1)
+</span><span class="c1"></span>	<span class="nx">serviceName</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">TrimSpace</span><span class="p">(</span><span class="nx">serviceName</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">srv</span><span class="p">,</span> <span class="nx">exists</span> <span class="o">:=</span> <span class="nx">fac</span><span class="p">.</span><span class="nx">cache</span><span class="p">[</span><span class="nx">serviceName</span><span class="p">];</span> <span class="nx">exists</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">srv</span><span class="p">,</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+
+	<span class="nx">fac</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+	<span class="k">defer</span> <span class="nx">fac</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+	<span class="c1">// ensure that the service wasn&#39;t already created during
+</span><span class="c1"></span>	<span class="c1">// lock-acquisition by a similar goroutine -- (2)
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">srv</span><span class="p">,</span> <span class="nx">exists</span> <span class="o">:=</span> <span class="nx">fac</span><span class="p">.</span><span class="nx">cache</span><span class="p">[</span><span class="nx">serviceName</span><span class="p">];</span> <span class="nx">exists</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">srv</span><span class="p">,</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+
+	<span class="c1">// construct the service and add it to the cache 
+</span><span class="c1"></span>	<span class="kd">var</span> <span class="nx">newService</span> <span class="nx">Service</span>
+	<span class="k">switch</span> <span class="nx">serviceName</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="s">&#34;foo&#34;</span><span class="p">:</span>
+		<span class="nx">newService</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">FooService</span><span class="p">{</span> <span class="cm">/* service specific config */</span> <span class="p">}</span>
+	<span class="k">case</span> <span class="s">&#34;bar&#34;</span><span class="p">:</span>
+		<span class="nx">newService</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">BarService</span><span class="p">{</span> <span class="cm">/* service specific config */</span> <span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">newService</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&#34;don&#39;t know how to construct %s&#34;</span><span class="p">,</span> <span class="nx">serviceName</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">fac</span><span class="p">.</span><span class="nx">cache</span><span class="p">[</span><span class="nx">serviceName</span><span class="p">]</span> <span class="p">=</span> <span class="nx">newService</span>
+	<span class="k">return</span> <span class="nx">newService</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>There. Much better. This pattern can be applied anywhere where you need to
+construct an object lazily and save it for future re-use. Double check locking
+ensures that the bare minimum amount of work is done and that there are no
+duplicate initialisations.</p>
+
+<h1 id="before-you-go-and-start-ab-using-this-pattern">Before you go and start (ab)using this pattern</h1>
+
+<p>Double checked locking is a fairly advanced design pattern. And though it may
+sound really good on paper, I&rsquo;d advise using against it, <em>unless</em> double initialisation
+is as an end of the world event for you, or if you construct and pool thousands or even
+millions of such object and the cost of construction is a bottle neck.</p>
+
+<p>Double checked locking tends to end up hurting the readability of your code. Use this pattern
+<em>after</em> you know that using it would actually help with security or performance.</p>
+
+<p>As Donald Knuth said</p>
+
+<blockquote>
+<p>premature optimization is the root of all evil</p>
+</blockquote>
+
+<p>that said, Go and have fun. :)</p>
+
+      </div>
+
+      <footer>
+        
+      </footer>
+    </article>
+  </section>
+
+      </div>
+    </main>
+
+    
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-93772960-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+
+  </body>
+
+</html>
