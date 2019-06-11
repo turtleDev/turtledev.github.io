@@ -595,7 +595,90 @@ construct an object lazily and save it for future re-use. Double check locking
 ensures that the bare minimum amount of work is done and that there are no
 duplicate initialisations.</p>
 
+<h1 id="but-why-does-it-check-twice">But why does it check twice?</h1>
+
+<p>Consider this piece of code</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">obj</span> <span class="o">*</span><span class="nx">object</span><span class="p">)</span> <span class="nx">method</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">property</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">obj</span><span class="p">.</span><span class="nx">property</span> <span class="p">=</span> <span class="nx">newProperty</span><span class="p">()</span>
+	<span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>People who know C++ or Java have probably seen this pattern a lot; this is the most simple
+method (pun intended) of lazy initialisation. Let&rsquo;s try to make it a thread safe by adding in a mutex lock.</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">obj</span> <span class="o">*</span><span class="nx">object</span><span class="p">)</span> <span class="nx">method</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">property</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">obj</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+		<span class="nx">obj</span><span class="p">.</span><span class="nx">property</span> <span class="p">=</span> <span class="nx">newProperty</span><span class="p">()</span>
+		<span class="nx">obj</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+	<span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>Better? well not necessarily. Let&rsquo;s take a hypothentical example of a case where two goroutines call
+this method at the same time. Both of them arrive at the predicate check <code>obj.property == nil</code> and try
+to acquire the lock. At this point one of them wins and goes ahead and initialises the property, while
+the other goroutines waits. Once the mutex is unlocked, the second go routine comes and initialises
+the property <em>again</em>. By adding a second check, we ensure that the trailing goroutine doesn&rsquo;t re-initialise
+the same property</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">obj</span> <span class="o">*</span><span class="nx">object</span><span class="p">)</span> <span class="nx">method</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">property</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">obj</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+		<span class="k">if</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">property</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="nx">obj</span><span class="p">.</span><span class="nx">property</span> <span class="p">=</span> <span class="nx">newProperty</span><span class="p">()</span>
+		<span class="p">}</span>
+		<span class="nx">obj</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+	<span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
 <h1 id="before-you-go-and-start-ab-using-this-pattern">Before you go and start (ab)using this pattern</h1>
+
+<p>As Donald Knuth said</p>
+
+<blockquote>
+<p>premature optimization is the root of all evil</p>
+</blockquote>
 
 <p>Double checked locking is a fairly advanced design pattern. And though it may
 sound really good on paper, I&rsquo;d advise using against it, <em>unless</em> double initialisation
@@ -604,14 +687,6 @@ millions of such object and the cost of construction is a bottle neck.</p>
 
 <p>Double checked locking tends to end up hurting the readability of your code. Use this pattern
 <em>after</em> you know that using it would actually help with security or performance.</p>
-
-<p>As Donald Knuth said</p>
-
-<blockquote>
-<p>premature optimization is the root of all evil</p>
-</blockquote>
-
-<p>that said, Go and have fun. :)</p>
 
       </div>
 
