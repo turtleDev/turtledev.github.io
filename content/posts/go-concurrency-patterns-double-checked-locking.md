@@ -283,7 +283,55 @@ construct an object lazily and save it for future re-use. Double check locking
 ensures that the bare minimum amount of work is done and that there are no
 duplicate initialisations.
 
+# But why does it check twice?
+
+Consider this piece of code
+
+{{< highlight go "linenos=table" >}}
+func (obj *object) method() {
+	if obj.property == nil {
+		obj.property = newProperty()
+	}
+}
+{{< / highlight >}}
+
+People who know C++ or Java have probably seen this pattern a lot; this is the most simple
+method (pun intended) of lazy initialisation. Let's try to make it a thread safe by adding in a mutex lock.
+
+{{< highlight go "linenos=table" >}}
+func (obj *object) method() {
+	if obj.property == nil {
+		obj.mu.Lock()
+		obj.property = newProperty()
+		obj.mu.Unlock()
+	}
+}
+{{< / highlight >}}
+
+Better? well not necessarily. Let's take a hypothentical example of a case where two goroutines call
+this method at the same time. Both of them arrive at the predicate check `obj.property == nil` and try
+to acquire the lock. At this point one of them wins and goes ahead and initialises the property, while
+the other goroutines waits. Once the mutex is unlocked, the second go routine comes and initialises
+the property _again_. By adding a second check, we ensure that the trailing goroutine doesn't re-initialise
+the same property
+
+{{< highlight go "linenos=table" >}}
+func (obj *object) method() {
+	if obj.property == nil {
+		obj.mu.Lock()
+		if obj.property == nil {
+			obj.property = newProperty()
+		}
+		obj.mu.Unlock()
+	}
+}
+{{< / highlight >}}
+
 # Before you go and start (ab)using this pattern
+
+As Donald Knuth said
+
+> premature optimization is the root of all evil
 
 Double checked locking is a fairly advanced design pattern. And though it may
 sound really good on paper, I'd advise using against it, _unless_ double initialisation
@@ -293,9 +341,3 @@ millions of such object and the cost of construction is a bottle neck.
 Double checked locking tends to end up hurting the readability of your code. Use this pattern
 _after_ you know that using it would actually help with security or performance. 
 
-As Donald Knuth said
-
-> premature optimization is the root of all evil
-
-that said, Go and have fun. :)
- 
