@@ -672,6 +672,59 @@ the same property</p>
 </div>
 </div>
 
+<h1 id="examples-of-double-checked-locking-in-golang-s-standard-library">Examples of double checked locking in Golang&rsquo;s standard library</h1>
+
+<p>Golang has an excellent and well thought out standard library. The <code>sync</code> package which contains synchronisation
+primitives has a type called <code>sync.Once</code>, which is <em>meant</em> to fix the double initialisation problem, and should
+be used instead of double checked locking where possible. Here&rsquo;s the source code of <code>sync.Once</code> (from go 1.12):</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Once is an object that will perform exactly one action.
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Once</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">m</span>    <span class="nx">Mutex</span>
+	<span class="nx">done</span> <span class="kt">uint32</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Once</span><span class="p">)</span> <span class="nx">Do</span><span class="p">(</span><span class="nx">f</span> <span class="kd">func</span><span class="p">())</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">atomic</span><span class="p">.</span><span class="nx">LoadUint32</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">done</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">{</span> 
+		<span class="k">return</span>
+	<span class="p">}</span>
+	<span class="c1">// Slow-path.
+</span><span class="c1"></span>	<span class="nx">o</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+	<span class="k">defer</span> <span class="nx">o</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">o</span><span class="p">.</span><span class="nx">done</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="k">defer</span> <span class="nx">atomic</span><span class="p">.</span><span class="nx">StoreUint32</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">done</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+		<span class="nx">f</span><span class="p">()</span>
+	<span class="p">}</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>As you can see, <code>sync.Once</code> also uses double checked locking, albeit it uses atomic operations
+for the checks, which makes it even better since at any time only <em>one</em> goroutine can actually
+make those checks. It&rsquo;s like a supercharged version of double checked locking.</p>
+
 <h1 id="before-you-go-and-start-ab-using-this-pattern">Before you go and start (ab)using this pattern</h1>
 
 <p>As Donald Knuth said</p>
