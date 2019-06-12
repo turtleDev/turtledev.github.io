@@ -92,6 +92,12 @@ ul.feature-list li::before {
 
 /* misc */
 .scramble-animate {
-    font-family: 'monospace';
+    /**
+     * macOS has this weird bug where monospace font is not
+     * rendered properly and ends up using some other font instead
+     * http://code.iamkate.com/html-and-css/fixing-browsers-broken-monospace-font-handling/
+     */
+    font-family: 'monospace', monospace;
+    font-size: 1em;
 }
 
