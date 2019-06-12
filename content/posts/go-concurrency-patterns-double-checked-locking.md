@@ -327,6 +327,38 @@ func (obj *object) method() {
 }
 {{< / highlight >}}
 
+# Examples of double checked locking in Golang's standard library
+
+Golang has an excellent and well thought out standard library. The `sync` package which contains synchronisation
+primitives has a type called `sync.Once`, which is _meant_ to fix the double initialisation problem, and should
+be used instead of double checked locking where possible. Here's the source code of `sync.Once` (from go 1.12):
+
+{{< highlight go "linenos=table" >}}
+// Once is an object that will perform exactly one action.
+type Once struct {
+	m    Mutex
+	done uint32
+}
+
+func (o *Once) Do(f func()) {
+	if atomic.LoadUint32(&o.done) == 1 { 
+		return
+	}
+	// Slow-path.
+	o.m.Lock()
+	defer o.m.Unlock()
+	if o.done == 0 {
+		defer atomic.StoreUint32(&o.done, 1)
+		f()
+	}
+}
+
+{{< / highlight >}}
+
+As you can see, `sync.Once` also uses double checked locking, albeit it uses atomic operations
+for the checks, which makes it even better since at any time only _one_ goroutine can actually
+make those checks. It's like a supercharged version of double checked locking.
+
 # Before you go and start (ab)using this pattern
 
 As Donald Knuth said
