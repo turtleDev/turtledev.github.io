@@ -18,6 +18,12 @@ jobs:
         run: |
           git submodule update --init
       
+      - name: build
+        run: ./hugow
+
+      - name: verify build
+        run: ls public/
+      
       # - name: setup node
       #   uses: actions/setup-node@v3
       #   with:
